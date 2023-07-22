@@ -3,7 +3,7 @@ import SmallLabel from "./SmallLabel";
 import Timecode from "./Timecode";
 import StaticTimecode from "./Timecode/StaticTimecode/StaticTimecode";
 import trashcanIcon from "@/../public/trashcan_icon.webp";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Timecode as TimecodeClass } from '@/logic/timecodelogic';
 import { Framerate } from "@/globalTypes/types";
 
@@ -26,6 +26,8 @@ export default function InOutSequence(props: InOutSequenceProps) {
     let [outTimecode, setOutTimecode] = useState(new TimecodeClass(props.framerate));
     let [comment, setComment] = useState("");
 
+    const commentField = useRef<HTMLTextAreaElement>();
+
     function onChange() {
         if (props.onChange !== undefined) {
             props.onChange({
@@ -39,7 +41,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
 
     useEffect(() => {
         onChange();
-    }, [differenceTimecode]);
+    }, [differenceTimecode, comment]);
 
     useEffect(() => {
         calculateTimecodeDifference()
@@ -75,7 +77,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
 
             <div className="pl-8 w-full h-full">
                 <SmallLabel>Comment</SmallLabel>
-                <textarea className="resize-none bg-zinc-700 w-full h-16 text-white p-1 rounded-md focus:outline-none focus:border border-zinc-50" />
+                <textarea onInput={e => setComment(() => e.target.value)} className="resize-none bg-zinc-700 w-full h-16 text-white p-1 rounded-md border border-transparent focus:border-white focus:outline-none" />
             </div>
 
             <div className="self-center">

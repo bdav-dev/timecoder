@@ -1,3 +1,4 @@
+import { IndexedInOutSequence } from "@/app/page";
 import { Framerate, TimecodeString } from "@/globalTypes/types";
 import { invalidTimecode, initialFramerate } from "@/globalTypes/types";
 
@@ -126,7 +127,11 @@ export class Timecode {
 
     toString() {
         const timecodeString = this.toTimecodeString();
-        return `${timecodeString.hours}:${timecodeString.minutes}:${timecodeString.seconds}:${timecodeString.frames} at ${this.framerate}fps`;
+        return `${timecodeString.hours}:${timecodeString.minutes}:${timecodeString.seconds}:${timecodeString.frames}`;
+    }
+
+    toStringWithFramerate() {
+        return this.toString() + " at ${this.framerate}fps";
     }
 }
 
@@ -140,4 +145,41 @@ function calcResultAndRemainder(a: number, b: number): Result {
         result: Math.floor(a / b),
         remainder: a % b
     };
+}
+
+
+
+export function downloadCSV(tableName: string, framerate: Framerate, inOut: IndexedInOutSequence[], sum: Timecode) {
+    function formatField(text: string): string {
+        return `"${text.replace('"', '""')}"`;
+    }
+
+    let rows = [
+        [tableName, "", `"Framerate: ${framerate}fps"`],
+        [""],
+        ["In", "Out", "Difference", "Comment"]
+    ];
+
+    for (const sequence of inOut) {
+        let row = [];
+        row.push(sequence.inOutSequence.in.toString());
+        row.push(sequence.inOutSequence.out.toString());
+        row.push(sequence.inOutSequence.difference.toString());
+        row.push(formatField(sequence.inOutSequence.comment));
+        rows.push(row);
+    }
+
+    rows.push([""]);
+    rows.push(["", "Sum:", sum.toString()]);
+    
+    const csvContent = "data:text/csv;charset=utf-8,"
+        + rows.map(e => e.join(";")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${tableName == "" ? "timecoder-export" : tableName}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }

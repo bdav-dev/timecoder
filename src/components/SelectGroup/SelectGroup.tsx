@@ -63,7 +63,7 @@ export default function SelectGroup(props: SelectGroupProps) {
         <div className="flex flex-row">
             {selectOptions.map((e) => {
                 return (
-                    <div onClick={() => select(e)} className="cursor-pointer text-xl p-1 m-2 w-14 rounded-full select-none" id={e.toString()} ref={e.ref}>
+                    <div onClick={() => select(e)} className="cursor-pointer text-xl p-1 m-2 w-14 select-none drop-shadow-md" id={e.toString()} ref={e.ref}>
                         {props.displayEach(e.value)}
                     </div>
                 );

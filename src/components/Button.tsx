@@ -1,12 +1,17 @@
 'use client';
 
 type PropsButton = {
+    className?: string,
     children: React.ReactNode,
-    onClick: () => void
+    usePadding?: boolean,
+    onClick?: () => void
 }
 
 export default function Button(props: PropsButton) {
+    const padding = props.usePadding == false ? "" : "p-3";
+    
+
     return (
-        <button onClick={props.onClick} className="w-20 h-10 rounded-lg bg-slate-500 text-white font-bold">&#xff0b;</button>
+        <button onClick={props.onClick} className={padding + " rounded-lg bg-slate-500 text-white font-bold drop-shadow-lg " + props.className}>{props.children}</button>
     );
 }
