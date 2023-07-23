@@ -1,13 +1,4 @@
-import { IndexedInOutSequence } from "@/app/page";
-import { Framerate, TimecodeString } from "@/globalTypes/types";
-import { invalidTimecode, initialFramerate } from "@/globalTypes/types";
-
-class TimecodeCalculationException extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = "TimecodeCalculationException";
-    }
-}
+import { Framerate, initialFramerate } from '@/ts/framerate';
 
 export class Timecode {
     hours: number;
@@ -21,11 +12,11 @@ export class Timecode {
     constructor(framerate: Framerate, hours: number, minutes: number, seconds: number, frames: number);
     constructor(framerate: Framerate);
     constructor(framerate?: Framerate, hours?: number, minutes?: number, seconds?: number, frames?: number) {
-        this.hours = hours || 0;
-        this.minutes = minutes || 0;
-        this.seconds = seconds || 0;
-        this.frames = frames || 0;
-        this.framerate = framerate || initialFramerate;
+        this.hours = hours ?? 0;
+        this.minutes = minutes ?? 0;
+        this.seconds = seconds ?? 0;
+        this.frames = frames ?? 0;
+        this.framerate = framerate ?? initialFramerate;
         this.invalid = false;
     }
 
@@ -131,9 +122,49 @@ export class Timecode {
     }
 
     toStringWithFramerate() {
-        return this.toString() + " at ${this.framerate}fps";
+        return this.toString() + ` at ${this.framerate}fps`;
     }
 }
+
+
+class TimecodeCalculationException extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "TimecodeCalculationException";
+    }
+}
+
+
+export type TimecodeObject = {
+    hours: number,
+    minutes: number,
+    seconds: number,
+    frames: number,
+    framerate: Framerate
+}
+
+export type TimecodeString = {
+    hours: string,
+    minutes: string,
+    seconds: string,
+    frames: string
+}
+
+export const invalidTimecode: TimecodeString = {
+    hours: "--",
+    minutes: "--",
+    seconds: "--",
+    frames: "--"
+}
+
+export const initialTimecode: TimecodeString = {
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+    frames: "00"
+}
+
+
 
 type Result = {
     result: number,
@@ -145,41 +176,4 @@ function calcResultAndRemainder(a: number, b: number): Result {
         result: Math.floor(a / b),
         remainder: a % b
     };
-}
-
-
-
-export function downloadCSV(tableName: string, framerate: Framerate, inOut: IndexedInOutSequence[], sum: Timecode) {
-    function formatField(text: string): string {
-        return `"${text.replace('"', '""')}"`;
-    }
-
-    let rows = [
-        [tableName, "", `"Framerate: ${framerate}fps"`],
-        [""],
-        ["In", "Out", "Difference", "Comment"]
-    ];
-
-    for (const sequence of inOut) {
-        let row = [];
-        row.push(sequence.inOutSequence.in.toString());
-        row.push(sequence.inOutSequence.out.toString());
-        row.push(sequence.inOutSequence.difference.toString());
-        row.push(formatField(sequence.inOutSequence.comment));
-        rows.push(row);
-    }
-
-    rows.push([""]);
-    rows.push(["", "Sum:", sum.toString()]);
-    
-    const csvContent = "data:text/csv;charset=utf-8,"
-        + rows.map(e => e.join(";")).join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    let link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${tableName == "" ? "timecoder-export" : tableName}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 }

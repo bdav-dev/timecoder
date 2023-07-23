@@ -1,4 +1,4 @@
-import Textbubble from "@/components/Textbubble";
+import Textbubble from "@/components/Primitives/Textbubble";
 import { vt323, ubuntuMono } from '@/fonts'
 
 export default function TimecoderLabel() {

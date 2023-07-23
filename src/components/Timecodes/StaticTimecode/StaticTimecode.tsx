@@ -1,10 +1,9 @@
-import StaticTimecodefield from '@/components/Timecode/StaticTimecode/StaticTimecodefield';
-import { TimecodeString } from '@/globalTypes/types';
+import StaticTimecodefield from '@/components/Timecodes/StaticTimecode/StaticTimecodefield';
+import { TimecodeString } from '@/ts/timecode';
 
 type StaticTimecodefieldProps = {
     timecode: TimecodeString
 }
-
 
 export default function StaticTimecode(props: StaticTimecodefieldProps) {
 

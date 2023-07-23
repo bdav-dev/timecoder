@@ -10,9 +10,9 @@ export type TimecodefieldProps = {
 }
 
 export default function Timecodefield(props: TimecodefieldProps) {
-    const placeholder = props.placeholder || "";
-    const defaultValue = props.defaultValue || "";
-    const maxValue = props.maxValue || 99;
+    const placeholder = props.placeholder ?? "";
+    const defaultValue = props.defaultValue ?? "";
+    const maxValue = props.maxValue ?? 99;
     const regex = /[^0-9]/g;
     const ref = useRef<HTMLInputElement>(null);
 
@@ -23,7 +23,7 @@ export default function Timecodefield(props: TimecodefieldProps) {
     }, [props.maxValue]);
 
     useEffect(() => {
-        if(props.onChange !== undefined)
+        if (props.onChange !== undefined)
             props.onChange(value);
     }, [value]);
 
@@ -37,10 +37,10 @@ export default function Timecodefield(props: TimecodefieldProps) {
 
     function applyRegexAndCap() {
         let inputValue = ref.current!.value;
-        
+
         inputValue = inputValue.replace(regex, ''); // apply regex
-        
-        if(parseInt(inputValue) > maxValue) // apply cap
+
+        if (parseInt(inputValue) > maxValue) // apply cap
             inputValue = maxValue.toString();
 
         ref.current!.value = inputValue;
@@ -48,7 +48,7 @@ export default function Timecodefield(props: TimecodefieldProps) {
 
         let passValue = inputValue;
 
-        if(passValue.length === 0)
+        if (passValue.length === 0)
             passValue = "0";
 
         setValue(() => parseInt(passValue));
@@ -68,7 +68,16 @@ export default function Timecodefield(props: TimecodefieldProps) {
 
     return (
         <div className={ubuntuMono}>
-            <input ref={ref} type="text" onInput={onInput} onBlur={onBlur} maxLength={2} placeholder={placeholder} className="text-white bg-zinc-700 focus:outline-none focus:border border-zinc-50 rounded-md w-8 h-8 text-center m-1 text-xl" defaultValue={defaultValue} />
+            <input
+                ref={ref}
+                type="text"
+                onInput={onInput}
+                onBlur={onBlur}
+                maxLength={2}
+                placeholder={placeholder}
+                className="expand-on-focus-10 text-white bg-zinc-700 focus:outline-none focus:border border-zinc-50 rounded-md w-8 h-8 text-center m-1 text-xl"
+                defaultValue={defaultValue}
+            />
         </div>
     );
 }

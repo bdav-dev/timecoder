@@ -1,4 +1,4 @@
-import { createRef, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type SelectGroupProps = {
     selectOptions: number[],
@@ -13,19 +13,21 @@ type SelectOptionRef = {
 }
 
 export default function SelectGroup(props: SelectGroupProps) {
-    let [selected, setSelected] = useState(props.initialValue);
+    let [selected, setSelected] = useState(props.initialValue ?? null);
 
     let selectOptions: SelectOptionRef[] = [];
 
+    // Fill select option list
     for (const element of props.selectOptions) {
         selectOptions.push({
             value: element,
-            ref: createRef()
+            ref: useRef(null)
         });
     }
 
     useEffect(() => {
-        if (props.initialValue != undefined) {
+        // Select default value, if present
+        if (props.initialValue !== undefined) {
             for (const element of selectOptions)
                 if (element.value === props.initialValue)
                     select(element)
@@ -33,28 +35,20 @@ export default function SelectGroup(props: SelectGroupProps) {
     }, []);
 
     useEffect(() => {
-        if (props.onChange !== undefined)
-            props.onChange(selected!);
+        props.onChange?.(selected!);
     }, [selected]);
 
 
     function select(so: SelectOptionRef) {
-        setSelected(so.value);
+        setSelected(() => so.value);
 
         for (const element of selectOptions) {
-            if (element.ref.current?.classList.contains("font-bold"))
-                element.ref.current?.classList.toggle("font-bold");
-
-            if (element.ref.current?.classList.contains("text-white"))
-                element.ref.current?.classList.toggle("text-white");
-
-            if (!element.ref.current?.classList.contains("text-zinc-500"))
-                element.ref.current?.classList.toggle("text-zinc-500");
-
             if (element.value === so.value) {
-                element.ref.current?.classList.toggle("font-bold");
-                element.ref.current?.classList.toggle("text-zinc-500");
-                element.ref.current?.classList.toggle("text-white");
+                element.ref.current?.classList.remove('select-group-not-selected');
+                element.ref.current?.classList.add('select-group-selected');
+            } else {
+                element.ref.current?.classList.remove('select-group-selected');
+                element.ref.current?.classList.add('select-group-not-selected');
             }
         }
     }
@@ -63,7 +57,12 @@ export default function SelectGroup(props: SelectGroupProps) {
         <div className="flex flex-row">
             {selectOptions.map((e) => {
                 return (
-                    <div onClick={() => select(e)} className="cursor-pointer text-xl p-1 m-2 w-14 select-none drop-shadow-md" id={e.toString()} ref={e.ref}>
+                    <div
+                        onClick={() => select(e)}
+                        className="cursor-pointer text-xl p-1 m-2 w-14 select-none drop-shadow-md"
+                        id={e.toString()}
+                        ref={e.ref}
+                    >
                         {props.displayEach(e.value)}
                     </div>
                 );
@@ -71,6 +70,4 @@ export default function SelectGroup(props: SelectGroupProps) {
 
         </div>
     );
-
-
 }

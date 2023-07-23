@@ -6,10 +6,30 @@ body {
   @apply bg-neutral-800
 }
 
-.trashcan-icon {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
+.expand-on-hover-10 {
+  @apply transition-transform duration-300 scale-100 hover:scale-110;
+}
+
+.expand-on-focus-10 {
+  @apply transition-transform duration-200 scale-100 focus:scale-110;
+}
+
+.expand-on-focus-1 {
+  @apply transition-transform duration-300 scale-100;
+}
+
+.expand-on-focus-1:focus {
+  transform: scale(101%);
+}
+
+
+.select-group-selected {
+  @apply font-bold scale-125 text-white;
+}
+
+.select-group-not-selected {
+  @apply text-zinc-500;
+  
+  /* expand-on-focus-25 */
+  @apply transition-transform duration-300 scale-100 hover:scale-125;
 }
