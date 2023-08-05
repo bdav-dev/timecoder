@@ -143,6 +143,13 @@ export type TimecodeObject = {
     framerate: Framerate
 }
 
+export type CompactTimecodeObject = {
+    h: number,
+    m: number,
+    s: number,
+    f: number
+}
+
 export type TimecodeString = {
     hours: string,
     minutes: string,

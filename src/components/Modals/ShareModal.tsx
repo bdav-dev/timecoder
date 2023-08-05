@@ -2,15 +2,16 @@ import { useEffect, useRef } from "react";
 import Modal, { ModalFwd } from "./Modal";
 import Button from "../Primitives/Button";
 import CopyableTextfield, { CopyableTextfieldFwd } from "../Primitives/CopyableTextfield";
+import { decode } from "@/ts/export";
 
 type ShareModalProps = {
     fwd: any,
-    onDownloadClick: (tablename: string) => void
+    onDownloadClick: () => void,
+    code?: string
 }
 
 export default function ShareModal(props: ShareModalProps) {
     const modal = useRef<ModalFwd>(null);
-    const tableName = useRef<HTMLInputElement>(null);
     const copyableTextfieldLink = useRef<CopyableTextfieldFwd>(null);
     const copyableTextfieldCode = useRef<CopyableTextfieldFwd>(null);
 
@@ -40,6 +41,11 @@ export default function ShareModal(props: ShareModalProps) {
                     Export and Share
                 </div>
 
+                <Button onClick={() => {
+                    decode(props.code!)
+                        .then(e => console.log(e))
+                }}>test</Button>
+
                 {/* Export options */}
                 <div className="flex items-center text-center flex-auto">
                     
@@ -49,17 +55,11 @@ export default function ShareModal(props: ShareModalProps) {
                             Export as .csv table
                         </div>
 
-                        <div className="flex h-10">
-                            <input
-                                ref={tableName}
-                                placeholder="Table name"
-                                className="bg-zinc-900 p-2 rounded-lg drop-shadow-md w-full focus:outline-none border border-transparent focus:border-zinc-200"
-                            />
-
+                        <div className="flex h-10 justify-center">
                             <Button
                                 usePadding={false}
                                 className="pl-3 pr-3 ml-2 h-10"
-                                onClick={() => props.onDownloadClick(tableName.current!.value)}
+                                onClick={() => props.onDownloadClick()}
                             >Download</Button>
                         </div>
                     </div>
@@ -71,7 +71,7 @@ export default function ShareModal(props: ShareModalProps) {
                         </div>
                         <CopyableTextfield
                             fwd={copyableTextfieldLink}
-                            text="https:/timecoder.de/?prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&prop1=10&"
+                            text={props.code ?? ""}
                         />
                     </div>
 

@@ -62,6 +62,7 @@ export default function SelectGroup(props: SelectGroupProps) {
                         className="cursor-pointer text-xl p-1 m-2 w-14 select-none drop-shadow-md"
                         id={e.toString()}
                         ref={e.ref}
+                        key={e.value}
                     >
                         {props.displayEach(e.value)}
                     </div>

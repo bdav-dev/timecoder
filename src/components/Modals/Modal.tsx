@@ -39,7 +39,7 @@ export default function Modal(props: ModalProps) {
         >
             <button
                 onClick={close}
-                className="bg-zinc-900 drop-shadow-md text- rounded-full h-10 w-10 absolute right-0 top-0 m-4 text-zinc-300"
+                className="expand-on-hover-10 bg-zinc-900 drop-shadow-md text- rounded-full h-10 w-10 absolute right-0 top-0 m-4 text-zinc-300"
             >&#10005;</button>
 
             {props.children}

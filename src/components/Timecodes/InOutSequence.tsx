@@ -4,14 +4,21 @@ import Timecode from "./Timecode/Timecode";
 import StaticTimecode from '@/components/Timecodes/StaticTimecode/StaticTimecode';
 import trashcanIcon from "@/../public/icons/trashcan_icon.webp";
 import { ChangeEvent, useEffect, useState } from "react";
-import { Timecode as TimecodeClass } from '@/ts/timecode';
+import { CompactTimecodeObject, Timecode as TimecodeClass } from '@/ts/timecode';
 import { Framerate } from "@/ts/framerate";
+import Button from '@/components/Primitives/Button'
 
 export type InOutSequenceProps = {
-    onDelete: () => void,
+    onDelete?: () => void,
+    onMove?: (operation: MoveOperation) => void,
     framerate: Framerate,
     onChange?: (seq: InOutSequence) => void
 };
+
+export enum MoveOperation {
+    UP,
+    DOWN
+}
 
 export type InOutSequence = {
     in: TimecodeClass,
@@ -19,6 +26,12 @@ export type InOutSequence = {
     difference: TimecodeClass,
     comment: string
 };
+
+export type CompactInOutSequence = {
+    i: CompactTimecodeObject,
+    o: CompactTimecodeObject,
+    c: string
+}
 
 export default function InOutSequence(props: InOutSequenceProps) {
     let [differenceTimecode, setDifferenceTimecode] = useState(new TimecodeClass(props.framerate));
@@ -59,7 +72,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
                     <SmallLabel>In</SmallLabel>
                     <Timecode
                         framerate={props.framerate}
-                        onChange={(timecode) => setInTimecode((p) => timecode)}
+                        onChange={(timecode) => setInTimecode(() => timecode)}
                     />
                 </div>
 
@@ -70,7 +83,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
                     <SmallLabel>Out</SmallLabel>
                     <Timecode
                         framerate={props.framerate}
-                        onChange={(timecode) => setOutTimecode((p) => timecode)}
+                        onChange={(timecode) => setOutTimecode(() => timecode)}
                     />
                 </div>
 
@@ -81,7 +94,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
                 </div>
             </div>
 
-            {/* Comment from user */}
+            {/* Comment */}
             <div className="pl-8 w-full h-full z-10">
                 <SmallLabel>Comment</SmallLabel>
                 <textarea
@@ -90,13 +103,31 @@ export default function InOutSequence(props: InOutSequenceProps) {
                 />
             </div>
 
-            {/* Delete-Button */}
-            <div className="self-center">
+            {/* Navigation and delete buttons */}
+            <div className="m-3 mt-7 self-center flex flex-row items-center">
+
+                <div className="flex flex-col mr-3">
+                    <Button className="pl-3 pr-3 mb-1"
+                        usePadding={false}
+                        onClick={() => props.onMove?.(MoveOperation.UP)}
+                    >▴</Button>
+
+                    <Button
+                        className="pl-3 pr-3 mt-1"
+                        usePadding={false} onClick={() => props.onMove?.(MoveOperation.DOWN)}
+                    >▾</Button>
+                </div>
+
                 <button
-                    className="bg-red-800 w-9 h-9 rounded-md m-3 mt-8 p-1 expand-on-hover-10"
-                    onClick={() => props.onDelete()}
+                    className="bg-red-800 w-9 h-9 rounded-md p-1.5 expand-on-hover-10"
+                    onClick={() => props.onDelete?.()}
                 >
-                    <Image src={trashcanIcon} width={256} height={256} alt="" />
+                    <Image
+                        src={trashcanIcon}
+                        width={128}
+                        height={128}
+                        alt=""
+                    />
                 </button>
             </div>
         </div>

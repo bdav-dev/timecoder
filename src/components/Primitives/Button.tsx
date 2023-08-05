@@ -1,6 +1,6 @@
 'use client';
 
-type PropsButton = {
+export type PropsButton = {
     className?: string,
     children: React.ReactNode,
     usePadding?: boolean,
@@ -8,7 +8,7 @@ type PropsButton = {
 }
 
 export default function Button(props: PropsButton) {
-    const padding = props.usePadding ? "p-3" : "";
+    const padding = props.usePadding ?? "p-3";
 
     return (
         <button
