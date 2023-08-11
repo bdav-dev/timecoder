@@ -1,21 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 
-type SelectGroupProps = {
-    selectOptions: number[],
-    displayEach: (value: number) => React.ReactNode;
-    initialValue?: number,
-    onChange?: (value: number) => void
+type SelectGroupProps<T> = {
+    selectOptions: T[],
+    displayEach: (value: T) => React.ReactNode;
+    initialValue?: T,
+    onChange?: (value: T) => void,
+    fwd?: any
 }
 
-type SelectOptionRef = {
-    value: number,
+type SelectOptionRef<T> = {
+    value: T,
     ref: React.RefObject<HTMLDivElement>
 }
 
-export default function SelectGroup(props: SelectGroupProps) {
+export type SelectGroupFwd<T> = {
+    selectValue: (value: T) => void
+}
+
+export default function SelectGroup<T>(props: SelectGroupProps<T>) {
     let [selected, setSelected] = useState(props.initialValue ?? null);
 
-    let selectOptions: SelectOptionRef[] = [];
+    let selectOptions: SelectOptionRef<T>[] = [];
 
     // Fill select option list
     for (const element of props.selectOptions) {
@@ -26,21 +31,29 @@ export default function SelectGroup(props: SelectGroupProps) {
     }
 
     useEffect(() => {
-        // Select default value, if present
-        if (props.initialValue !== undefined) {
-            for (const element of selectOptions)
-                if (element.value === props.initialValue)
-                    select(element)
+        props.fwd.current = {
+            selectValue: selectValue
         }
+    }, [props.fwd]);
+
+    useEffect(() => {
+        // Select default value, if present
+        if (props.initialValue)
+            selectValue(props.initialValue);
     }, []);
 
     useEffect(() => {
         props.onChange?.(selected!);
     }, [selected]);
 
+    function selectValue(value: T) {
+        for (const element of selectOptions)
+            if (element.value === value)
+                select(element)
+    }
 
-    function select(so: SelectOptionRef) {
-        setSelected(() => so.value);
+    function select(so: SelectOptionRef<T>) {
+        setSelected(() => so.value!);
 
         for (const element of selectOptions) {
             if (element.value === so.value) {
@@ -55,14 +68,14 @@ export default function SelectGroup(props: SelectGroupProps) {
 
     return (
         <div className="flex flex-row">
-            {selectOptions.map((e) => {
+            {selectOptions.map((e, index) => {
                 return (
                     <div
                         onClick={() => select(e)}
                         className="cursor-pointer text-xl p-1 m-2 w-14 select-none drop-shadow-md"
                         id={e.toString()}
                         ref={e.ref}
-                        key={e.value}
+                        key={index}
                     >
                         {props.displayEach(e.value)}
                     </div>

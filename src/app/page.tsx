@@ -1,17 +1,17 @@
 'use client';
 
 import Button from "@/components/Primitives/Button";
-import FpsSelector from "@/components/FpsSelector/FpsSelector";
+import FpsSelector, { FpsSelectorFwd } from "@/components/FpsSelector/FpsSelector";
 import InOutSequence, { InOutSequence as InOutSequenceType, MoveOperation } from "@/components/Timecodes/InOutSequence";
 import Textbubble from "@/components/Primitives/Textbubble";
 import TimecoderLabel from "@/components/TimecoderLabel";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { initialFramerate } from "@/ts/framerate";
+import { Framerate, initialFramerate } from "@/ts/framerate";
 import StaticTimecode from "@/components/Timecodes/StaticTimecode/StaticTimecode";
 import { Timecode } from "@/ts/timecode";
-import { encode, downloadCSV } from "@/ts/export";
+import { encode, downloadCSV, decode } from "@/ts/export";
 import SmallLabel from "@/components/Primitives/SmallLabel";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ModalFwd } from "@/components/Modals/Modal";
 import ShareModal from "@/components/Modals/ShareModal";
 
@@ -28,79 +28,91 @@ export default function Timecoder() {
   let [projectName, setProjectName] = useState("");
   let [code, setCode] = useState("");
   const query = useSearchParams();
-
+  const encodedData = query.get('d');
+  const fpsSelectorFwd = useRef<FpsSelectorFwd>(null);
+  const projectNameRef = useRef<HTMLInputElement>(null);
   const shareModal = useRef<ModalFwd>(null);
 
+  const router = useRouter();
+
   useEffect(() => {
-    if (inOutSequences.length === 0)
-      addSequence();
+    console.log("on Init: localstorage: " + window.localStorage.getItem("a"));
+
+    init();
   }, []);
 
   useEffect(() => {
     calculateSum();
+
+    //saveToLocalStorage();
+
+    // window.localStorage.setItem("a", JSON.stringify(inOutSequences));
+    //   console.log("Saved to localstorage");
+    //   console.log("Cross Check: " + window.localStorage.getItem("a"));
   }, [inOutSequences]);
 
-  /*
-  // under construction
-  function init() {
-    let data = getFromLocalStorage();
-
-    if (data != null) {
-      setInOutSequences(() => {
-        if (data == null)
-          return [];
-
-        let index = 0;
-        return data.map((e) => {
-          return {
-            id: index++,
-            inOutSequence: e
-          }
-        });
-      });
-
-    } else {
-      if (inOutSequences.length === 0)
-        addSequence();
-
-    }
-
-    window.onbeforeunload = () => {
-      saveToLocalStorage();
-    };
-  }
-
-  // under construction
-  function getFromLocalStorage() {
-    const rawData = localStorage.getItem("timecoder_data");
-    let data: InOutSequenceType[];
-
-    if (rawData != null)
-      data = JSON.parse(rawData);
-    else
-      return null;
-
-
-    data = data.map((e: InOutSequenceType) => {
-      return {
-        in: new Timecode(e.in.framerate, e.in.hours, e.in.minutes, e.in.seconds, e.in.frames),
-        out: new Timecode(e.out.framerate, e.out.hours, e.out.minutes, e.out.seconds, e.out.frames),
-        difference: new Timecode(e.difference.framerate, e.difference.hours, e.difference.minutes, e.difference.seconds, e.difference.frames),
-        comment: e.comment
-      }
+  useEffect(() => {
+    encode({
+      title: projectName,
+      framerate: framerate,
+      indexedInOutSequences: inOutSequences
+    }).then(code => {
+      localStorage.setItem("timecoder", code);
     });
+  }, [inOutSequences, projectName, framerate]);
 
-    if (data.length == 0)
-      return null;
-
-    return data;
+  function init() {
+    if (encodedData !== null) {
+      decode(encodedData)
+        .then((result) => {
+          loadDecodedData(result.title, result.framerate, result.indexedInOutSequences);
+        })
+        .catch(e => {
+          loadLocalStorage();
+        });
+    } else {
+      loadLocalStorage();
+    }
   }
 
-  // under construction
-  function saveToLocalStorage() {
-    localStorage.setItem("timecoder_data", JSON.stringify(inOutSequences.map(e => e.inOutSequence)));
+  function loadLocalStorage() {
+    const encodedData = localStorage.getItem("timecoder");
+
+    if (encodedData) {
+      decode(encodedData)
+        .then((result) => {
+          loadDecodedData(result.title, result.framerate, result.indexedInOutSequences);
+        })
+        .catch(e => {
+          loadDefault();
+        });
+    } else {
+      loadDefault();
+    }
   }
-  */
+
+  function loadDefault() {
+    if (inOutSequences.length === 0)
+      addSequence();
+  }
+
+  function loadDecodedData(title: string, framerate: Framerate, indexedInOutSequences: IndexedInOutSequence[]) {
+    // Set title
+    setProjectName(() => title);
+    projectNameRef.current!.value = title;
+
+    // Set framerate
+    fpsSelectorFwd.current?.selectFramerate(framerate);
+    setFramerate(() => framerate);
+
+    // Set in out sequences
+    setInOutSequences(() => indexedInOutSequences);
+    // Set next id
+    setNextID(() => indexedInOutSequences[indexedInOutSequences.length - 1].id + 1);
+
+    // remove parameters
+    router.replace(window.location.origin + window.location.pathname);
+  }
 
   function updateInOutSequence(id: number, data: InOutSequenceType) {
     setInOutSequences((prev) => {
@@ -181,19 +193,28 @@ export default function Timecoder() {
       framerate: framerate,
       indexedInOutSequences: inOutSequences
     }).then(code => {
-      setCode(() => code);
+      setCode(() => encodeURIComponent(code));
       shareModal.current?.showModal();
     });
   }
 
   return (
-    <div className="w-screen h-screen">
-
+    <div>
       {/* Header */}
       <div id="header" className="flex justify-between flex-row items-center">
         <TimecoderLabel />
-        <input onInput={(e: ChangeEvent<HTMLInputElement>) => setProjectName(() => e.target.value)} placeholder="Project name" className="text-center h-16 text-3xl w-1/2 text-white bg-zinc-900 p-2 rounded-xl drop-shadow-md focus:outline-none border border-transparent focus:border-zinc-200" type="text"></input>
-        <FpsSelector onChange={(newFramerate) => setFramerate(() => newFramerate)} initialValue={initialFramerate} />
+        <input
+          onInput={(e: ChangeEvent<HTMLInputElement>) => setProjectName(() => e.target.value)}
+          placeholder="Project name"
+          className="text-center h-16 text-3xl w-1/2 text-white bg-zinc-900 p-2 rounded-xl drop-shadow-md focus:outline-none border border-transparent focus:border-zinc-200"
+          type="text"
+          ref={projectNameRef}>
+        </input>
+        <FpsSelector
+          onChange={(newFramerate) => setFramerate(() => newFramerate)}
+          initialValue={framerate}
+          fwd={fpsSelectorFwd}
+        />
       </div>
 
       {/* Timecode Sequences */}
@@ -206,6 +227,7 @@ export default function Timecoder() {
               key={e.id}
               onDelete={() => deleteSequence(e.id)}
               onMove={(op) => moveSequence(e.id, op)}
+              initialValue={e.inOutSequence}
             />
           )}
         </div>
@@ -226,6 +248,7 @@ export default function Timecoder() {
         </Textbubble>
       </div>
 
+      {/* ShareModal */}
       <ShareModal onDownloadClick={() => downloadCSV(projectName, framerate, inOutSequences, sumTimecode)} fwd={shareModal} code={code} />
     </div>
   );

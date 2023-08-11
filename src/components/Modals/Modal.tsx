@@ -34,7 +34,7 @@ export default function Modal(props: ModalProps) {
 
     return (
         <dialog
-            className={"backdrop:bg-opacity-30 backdrop:bg-zinc-900 bg-zinc-700 drop-shadow-xl w-2/3 rounded-xl text-white " + props.className}
+            className={"backdrop:bg-opacity-40 backdrop:bg-zinc-900 bg-zinc-700 drop-shadow-xl rounded-xl text-white " + props.className}
             ref={modal}
         >
             <button

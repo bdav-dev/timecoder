@@ -3,6 +3,18 @@ import { CompactInOutSequence, InOutSequence } from '@/components/Timecodes/InOu
 import { Framerate } from '@/ts/framerate';
 import { CompactTimecodeObject, Timecode, TimecodeObject } from '@/ts/timecode';
 
+type TimecoderData = {
+    title: string,
+    framerate: Framerate,
+    indexedInOutSequences: IndexedInOutSequence[]
+}
+
+type CompactTimecoderData = {
+    t: string,
+    f: Framerate
+    s: CompactInOutSequence[]
+}
+
 export function downloadCSV(tableName: string, framerate: Framerate, inOut: IndexedInOutSequence[], sum: Timecode) {
     function formatField(text: string): string {
         return `"${text.replaceAll('"', "'")}"`;
@@ -38,20 +50,6 @@ export function downloadCSV(tableName: string, framerate: Framerate, inOut: Inde
     document.body.removeChild(link);
 }
 
-
-type TimecoderData = {
-    title: string,
-    framerate: Framerate,
-    indexedInOutSequences: IndexedInOutSequence[]
-}
-
-type CompactTimecoderData = {
-    t: string,
-    f: Framerate
-    s: CompactInOutSequence[]
-}
-
-
 export async function encode(data: TimecoderData): Promise<string> {
     const compactInOutSequences: CompactInOutSequence[] = data.indexedInOutSequences.map(
         indexedSequence => toCompactInOutSequence(indexedSequence)
@@ -65,19 +63,19 @@ export async function encode(data: TimecoderData): Promise<string> {
 
     const compressed = await compress(JSON.stringify(encodeData));
 
-    return encodeURIComponent(compressed);
+    return compressed;
 }
 
 export async function decode(encodedMessage: string): Promise<TimecoderData> {
-    const decodedURIComponent = decodeURIComponent(encodedMessage);
-    const decompressed = await decompress(decodedURIComponent);
-    const json: CompactTimecoderData = JSON.parse(decompressed);
+        const decodedURIComponent = encodedMessage;
+        const decompressed = await decompress(decodedURIComponent);
+        const json = JSON.parse(decompressed);
 
-    return {
-        title: json.t,
-        framerate: json.f,
-        indexedInOutSequences: json.s.map((e, index) => toIndexedInOutSequence(index, e, json.f))
-    };
+        return {
+            title: json.t,
+            framerate: json.f,
+            indexedInOutSequences: json.s.map((e: CompactInOutSequence, index: number) => toIndexedInOutSequence(index, e, json.f))
+        };
 }
 
 function toIndexedInOutSequence(id: number, compactInOutSequence: CompactInOutSequence, framerate: Framerate): IndexedInOutSequence {
@@ -128,6 +126,7 @@ async function compress(message: string): Promise<string> {
     const writer = compressionStream.writable.getWriter();
     writer.write(byteArray);
     writer.close();
-    const compressedArrayBuffer = await new Response(compressionStream.readable).arrayBuffer();
+    let compressedArrayBuffer;
+    compressedArrayBuffer = await new Response(compressionStream.readable).arrayBuffer();
     return Buffer.from(compressedArrayBuffer).toString('base64');
 }

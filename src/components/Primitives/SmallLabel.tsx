@@ -7,7 +7,7 @@ type SmallLabelProps = {
 export default function SmallLabel(props: SmallLabelProps) {
 
     return (
-        <span className={"pl-2 text-zinc-400 font-extrabold drop-shadow-none " + ubuntuMono}>
+        <span className={"pl-2 text-zinc-400 font-extrabold drop-shadow-none select-none " + ubuntuMono}>
             {props.children}
         </span>
     );

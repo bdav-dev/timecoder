@@ -1,22 +1,38 @@
-import SelectGroup from "./SelectGroup";
+import SelectGroup, { SelectGroupFwd } from "./SelectGroup";
 import Textbubble from "../Primitives/Textbubble";
 import { ubuntuMono } from '@/fonts';
 import { Framerate, framerates } from "@/ts/framerate";
+import { useEffect, useRef } from "react";
 
 type FpsSelectorProps = {
     onChange?: (framerate: Framerate) => void,
-    initialValue?: Framerate
+    initialValue?: Framerate,
+    fwd?: any
+}
+
+export type FpsSelectorFwd = {
+    selectFramerate: (framerate: Framerate) => void
 }
 
 export default function FpsSelector(props: FpsSelectorProps) {
-
     const fpsOptions = framerates;
+    const selectGroupRef = useRef<SelectGroupFwd<Framerate>>();
 
-    function selectGroupChanged(value: number) {
-        props.onChange?.(value as Framerate);
+    useEffect(() => {
+        props.fwd.current = {
+            selectFramerate: selectFramerate
+        }
+    }, [props.fwd]);
+
+    function selectFramerate(framerate: Framerate) {
+        selectGroupRef.current?.selectValue(framerate);
     }
 
-    function displayValue(value: number) {
+    function selectGroupChanged(value: Framerate) {
+        props.onChange?.(value);
+    }
+
+    function displayValue(value: Framerate) {
         return (
             <div className="flex flex-col p-1">
                 <div>{value}</div>
@@ -34,6 +50,7 @@ export default function FpsSelector(props: FpsSelectorProps) {
                     displayEach={displayValue}
                     selectOptions={fpsOptions}
                     initialValue={props.initialValue ?? fpsOptions[0]}
+                    fwd={selectGroupRef}
                 />
             </Textbubble>
         </div>

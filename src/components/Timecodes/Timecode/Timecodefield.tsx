@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export type TimecodefieldProps = {
     placeholder?: string,
-    defaultValue?: string,
+    defaultValue?: number,
     maxValue?: number,
     onChange?: (value: number) => void
 }
@@ -32,7 +32,7 @@ export default function Timecodefield(props: TimecodefieldProps) {
     }
 
     function onBlur() {
-        format();
+        formatInput();
     }
 
     function applyRegexAndCap() {
@@ -54,16 +54,20 @@ export default function Timecodefield(props: TimecodefieldProps) {
         setValue(() => parseInt(passValue));
     }
 
-    function format() {
-        let inputValue = ref.current!.value;
+    function formatInput() {
+        ref.current!.value = format(ref.current!.value);
+    }
 
-        if (inputValue.length == 1)
-            inputValue = "0" + inputValue;
+    function format(text: string) {
+        let formatedText = text;
 
-        if (inputValue.length == 0)
-            inputValue = "00";
+        if (text.length == 1)
+            formatedText = "0" + text;
 
-        ref.current!.value = inputValue;
+        if (text.length == 0)
+            formatedText = "00";
+
+        return formatedText;
     }
 
     return (
@@ -76,7 +80,7 @@ export default function Timecodefield(props: TimecodefieldProps) {
                 maxLength={2}
                 placeholder={placeholder}
                 className="expand-on-focus-10 text-white bg-zinc-700 focus:outline-none focus:border border-zinc-50 rounded-md w-8 h-8 text-center m-1 text-xl"
-                defaultValue={defaultValue}
+                defaultValue={format(defaultValue.toString())}
             />
         </div>
     );

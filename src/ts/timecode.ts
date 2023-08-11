@@ -121,6 +121,15 @@ export class Timecode {
         return `${timecodeString.hours}:${timecodeString.minutes}:${timecodeString.seconds}:${timecodeString.frames}`;
     }
 
+    toCompactTimecodeObject(): CompactTimecodeObject {
+        return {
+            h: this.hours,
+            m: this.minutes,
+            s: this.seconds,
+            f: this.frames
+        }
+    }
+
     toStringWithFramerate() {
         return this.toString() + ` at ${this.framerate}fps`;
     }

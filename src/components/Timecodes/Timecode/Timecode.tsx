@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import Timecodefield from "./Timecodefield";
-import { Timecode as TimecodeClass } from "@/ts/timecode";
+import { CompactTimecodeObject, Timecode as TimecodeClass } from "@/ts/timecode";
 import { Framerate } from "@/ts/framerate";
 
 export type TimecodeProps = {
     framerate: Framerate,
     onChange?: (timecode: TimecodeClass) => void
+    initialValue?: CompactTimecodeObject
 }
 
 export default function Timecode(props: TimecodeProps) {
-    let [timecode, setTimecode] = useState(new TimecodeClass(props.framerate));
+    let [timecode, setTimecode] =
+        useState(props.initialValue ?
+            new TimecodeClass(props.framerate, props.initialValue.h, props.initialValue.m, props.initialValue.s, props.initialValue.f) :
+            new TimecodeClass(props.framerate)
+        );
 
     useEffect(() => {
         setTimecode((prev) => {
@@ -51,27 +56,27 @@ export default function Timecode(props: TimecodeProps) {
             <Timecodefield
                 onChange={(value) => onChange(0, value)}
                 placeholder="h"
-                defaultValue="00"
+                defaultValue={props.initialValue?.h ?? 0}
                 maxValue={99}
             />
             :
             <Timecodefield
                 onChange={(value) => onChange(1, value)}
                 placeholder="m"
-                defaultValue="00"
+                defaultValue={props.initialValue?.m ?? 0}
                 maxValue={59}
             />
             :
             <Timecodefield
                 onChange={(value) => onChange(2, value)}
                 placeholder="s"
-                defaultValue="00"
+                defaultValue={props.initialValue?.s ?? 0}
                 maxValue={59}
             />
             :
             <Timecodefield onChange={(value) => onChange(3, value)}
                 placeholder="f"
-                defaultValue="00"
+                defaultValue={props.initialValue?.f ?? 0}
                 maxValue={props.framerate - 1}
             />
         </div>

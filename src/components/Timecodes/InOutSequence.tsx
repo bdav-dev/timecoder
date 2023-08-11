@@ -12,7 +12,8 @@ export type InOutSequenceProps = {
     onDelete?: () => void,
     onMove?: (operation: MoveOperation) => void,
     framerate: Framerate,
-    onChange?: (seq: InOutSequence) => void
+    onChange?: (seq: InOutSequence) => void,
+    initialValue?: InOutSequence
 };
 
 export enum MoveOperation {
@@ -34,10 +35,10 @@ export type CompactInOutSequence = {
 }
 
 export default function InOutSequence(props: InOutSequenceProps) {
-    let [differenceTimecode, setDifferenceTimecode] = useState(new TimecodeClass(props.framerate));
-    let [inTimecode, setInTimecode] = useState(new TimecodeClass(props.framerate));
-    let [outTimecode, setOutTimecode] = useState(new TimecodeClass(props.framerate));
-    let [comment, setComment] = useState("");
+    let [differenceTimecode, setDifferenceTimecode] = useState(props.initialValue?.difference ?? new TimecodeClass(props.framerate));
+    let [inTimecode, setInTimecode] = useState(props.initialValue?.in ?? new TimecodeClass(props.framerate));
+    let [outTimecode, setOutTimecode] = useState(props.initialValue?.out ?? new TimecodeClass(props.framerate));
+    let [comment, setComment] = useState(props.initialValue?.comment ?? "");
 
     function onChange() {
         props.onChange?.({
@@ -73,6 +74,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
                     <Timecode
                         framerate={props.framerate}
                         onChange={(timecode) => setInTimecode(() => timecode)}
+                        initialValue={props.initialValue?.in?.toCompactTimecodeObject()}
                     />
                 </div>
 
@@ -84,6 +86,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
                     <Timecode
                         framerate={props.framerate}
                         onChange={(timecode) => setOutTimecode(() => timecode)}
+                        initialValue={props.initialValue?.out?.toCompactTimecodeObject()}
                     />
                 </div>
 
@@ -100,6 +103,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
                 <textarea
                     onInput={(e: ChangeEvent<HTMLTextAreaElement>) => setComment(() => e.target.value)}
                     className="expand-on-focus-1 resize-none bg-zinc-700 w-full h-16 text-white p-1 rounded-md border border-transparent focus:border-white focus:outline-none"
+                    defaultValue={props.initialValue?.comment ?? ""}
                 />
             </div>
 
