@@ -36,7 +36,7 @@ export class Timecode {
 
     add(timecode: Timecode): Timecode {
         if (this.framerate != timecode.framerate)
-            throw new TimecodeCalculationException(`Add: Provided Timecode has different framerate. Framerate-Self: ${this.framerate}, Framerate-Other: ${timecode.framerate}`);
+            throw new TimecodeCalculationException(`Provided Timecode has different framerate. Framerate-Self: ${this.framerate}, Framerate-Other: ${timecode.framerate}`);
 
         const framesCalc = calcResultAndRemainder(timecode.frames + this.frames, this.framerate);
         const secondsCalc = calcResultAndRemainder(timecode.seconds + this.seconds + framesCalc.result, 60);
@@ -58,7 +58,7 @@ export class Timecode {
 
     subtract(timecode: Timecode): Timecode {
         if (this.framerate != timecode.framerate)
-            throw new TimecodeCalculationException(`Add: Provided Timecode has different framerate. Framerate-Self: ${this.framerate}, Framerate-Other: ${timecode.framerate}`);
+            throw new TimecodeCalculationException(`Provided Timecode has different framerate. Framerate-Self: ${this.framerate}, Framerate-Other: ${timecode.framerate}`);
 
         let framesCalc = calcResultAndRemainder(this.frames - timecode.frames, this.framerate);
         if (framesCalc.remainder < 0)
@@ -179,8 +179,6 @@ export const initialTimecode: TimecodeString = {
     seconds: "00",
     frames: "00"
 }
-
-
 
 type Result = {
     result: number,

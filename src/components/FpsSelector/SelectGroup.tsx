@@ -81,7 +81,6 @@ export default function SelectGroup<T>(props: SelectGroupProps<T>) {
                     </div>
                 );
             })}
-
         </div>
     );
 }

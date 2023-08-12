@@ -1,5 +1,5 @@
-import { createRef, useEffect, useMemo, useRef, useState } from "react";
-import Button, { PropsButton } from "./Button";
+import { useEffect, useRef, useState } from "react";
+import Button from "./Button";
 import copyIcon from '@/../public/icons/copy_icon.webp'
 import Image from "next/image";
 

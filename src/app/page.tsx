@@ -14,6 +14,7 @@ import SmallLabel from "@/components/Primitives/SmallLabel";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ModalFwd } from "@/components/Modals/Modal";
 import ShareModal from "@/components/Modals/ShareModal";
+import ErrorModal, { ErrorModalFwd } from "@/components/Modals/ErrorModal";
 
 export type IndexedInOutSequence = {
   id: number,
@@ -27,38 +28,26 @@ export default function Timecoder() {
   let [sumTimecode, setSumTimecode] = useState<Timecode>(new Timecode(initialFramerate));
   let [projectName, setProjectName] = useState("");
   let [code, setCode] = useState("");
+
   const query = useSearchParams();
   const encodedData = query.get('d');
   const fpsSelectorFwd = useRef<FpsSelectorFwd>(null);
   const projectNameRef = useRef<HTMLInputElement>(null);
   const shareModal = useRef<ModalFwd>(null);
+  const errorModal = useRef<ErrorModalFwd>(null);
 
   const router = useRouter();
 
   useEffect(() => {
-    console.log("on Init: localstorage: " + window.localStorage.getItem("a"));
-
     init();
   }, []);
 
   useEffect(() => {
-    calculateSum();
-
-    //saveToLocalStorage();
-
-    // window.localStorage.setItem("a", JSON.stringify(inOutSequences));
-    //   console.log("Saved to localstorage");
-    //   console.log("Cross Check: " + window.localStorage.getItem("a"));
+    calculateSum(); 
   }, [inOutSequences]);
 
   useEffect(() => {
-    encode({
-      title: projectName,
-      framerate: framerate,
-      indexedInOutSequences: inOutSequences
-    }).then(code => {
-      localStorage.setItem("timecoder", code);
-    });
+    saveToLocalStorage();
   }, [inOutSequences, projectName, framerate]);
 
   function init() {
@@ -67,15 +56,26 @@ export default function Timecoder() {
         .then((result) => {
           loadDecodedData(result.title, result.framerate, result.indexedInOutSequences);
         })
-        .catch(e => {
-          loadLocalStorage();
+        .catch(() => {
+          errorModal.current?.showModal("Error", "An error occurred while parsing the code you provided. Continuing by loading from local storage.");
+          loadFromLocalStorage();
         });
     } else {
-      loadLocalStorage();
+      loadFromLocalStorage();
     }
   }
 
-  function loadLocalStorage() {
+  function saveToLocalStorage() {
+    encode({
+      title: projectName,
+      framerate: framerate,
+      indexedInOutSequences: inOutSequences
+    }).then(code => {
+      localStorage.setItem("timecoder", code);
+    });
+  }
+
+  function loadFromLocalStorage() {
     const encodedData = localStorage.getItem("timecoder");
 
     if (encodedData) {
@@ -83,7 +83,7 @@ export default function Timecoder() {
         .then((result) => {
           loadDecodedData(result.title, result.framerate, result.indexedInOutSequences);
         })
-        .catch(e => {
+        .catch(() => {
           loadDefault();
         });
     } else {
@@ -105,10 +105,14 @@ export default function Timecoder() {
     fpsSelectorFwd.current?.selectFramerate(framerate);
     setFramerate(() => framerate);
 
-    // Set in out sequences
-    setInOutSequences(() => indexedInOutSequences);
-    // Set next id
-    setNextID(() => indexedInOutSequences[indexedInOutSequences.length - 1].id + 1);
+    if (indexedInOutSequences.length != 0) {
+      // Set in out sequences
+      setInOutSequences(() => indexedInOutSequences);
+      // Set next id
+      setNextID(() => indexedInOutSequences[indexedInOutSequences.length - 1].id + 1);
+    } else {
+      loadDefault();
+    }
 
     // remove parameters
     router.replace(window.location.origin + window.location.pathname);
@@ -248,8 +252,9 @@ export default function Timecoder() {
         </Textbubble>
       </div>
 
-      {/* ShareModal */}
+      {/* Modals */}
       <ShareModal onDownloadClick={() => downloadCSV(projectName, framerate, inOutSequences, sumTimecode)} fwd={shareModal} code={code} />
+      <ErrorModal fwd={errorModal}/>
     </div>
   );
 }

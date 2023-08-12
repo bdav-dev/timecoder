@@ -21,7 +21,7 @@ export function downloadCSV(tableName: string, framerate: Framerate, inOut: Inde
     }
 
     let rows = [
-        [`"${formatField(tableName)}"`, "", `"Framerate: ${framerate}fps"`],
+        [`${formatField(tableName)}`, "", `"Framerate: ${framerate}fps"`],
         [""],
         ["In", "Out", "Difference", "Comment"]
     ];
@@ -118,7 +118,6 @@ async function decompress(compressedMessage: string): Promise<string> {
     const decompressedArrayBuffer = await new Response(decompressionStream.readable).arrayBuffer();
     return new TextDecoder().decode(decompressedArrayBuffer);
 }
-
 
 async function compress(message: string): Promise<string> {
     const byteArray = new TextEncoder().encode(message);
