@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ModalFwd } from "@/components/Modals/Modal";
 import ShareModal from "@/components/Modals/ShareModal";
 import ErrorModal, { ErrorModalFwd } from "@/components/Modals/ErrorModal";
+import DiscreteAlert, { DiscreteAlertFwd } from "@/components/Primitives/DiscreteAlert";
 
 export type IndexedInOutSequence = {
   id: number,
@@ -35,6 +36,7 @@ export default function Timecoder() {
   const projectNameRef = useRef<HTMLInputElement>(null);
   const shareModal = useRef<ModalFwd>(null);
   const errorModal = useRef<ErrorModalFwd>(null);
+  const discreteAlert = useRef<DiscreteAlertFwd>(null);
 
   const router = useRouter();
 
@@ -57,7 +59,7 @@ export default function Timecoder() {
           loadDecodedData(result.title, result.framerate, result.indexedInOutSequences);
         })
         .catch(() => {
-          errorModal.current?.showModal("Error", "An error occurred while parsing the code you provided. Continuing by loading from local storage.");
+          discreteAlert.current?.show(5000, 'RED');
           loadFromLocalStorage();
         });
     } else {
@@ -254,7 +256,11 @@ export default function Timecoder() {
 
       {/* Modals */}
       <ShareModal onDownloadClick={() => downloadCSV(projectName, framerate, inOutSequences, sumTimecode)} fwd={shareModal} code={code} />
-      <ErrorModal fwd={errorModal}/>
+      {/*<ErrorModal fwd={errorModal}/>*/}
+
+      <DiscreteAlert fwd={discreteAlert}>
+        Error: Unable to parse data, code provided in the URL is corrupted.
+      </DiscreteAlert>
     </div>
   );
 }

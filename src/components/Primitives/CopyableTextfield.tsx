@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Button from "./Button";
 import copyIcon from '@/../public/icons/copy_icon.webp'
 import Image from "next/image";
+import DiscreteAlert, { DiscreteAlertFwd } from "./DiscreteAlert";
 
 type CopyableTextfieldProps = {
     text: string,
@@ -17,16 +18,16 @@ export default function CopyableTextfield(props: CopyableTextfieldProps) {
     let [marked, setMarked] = useState(false);
     let [buttonClassNameAdditum, setButtonClassNameAdditum] = useState("");
 
+    const discreteAlert = useRef<DiscreteAlertFwd>(null);
+
     useEffect(() => {
         props.fwd.current = {
             reset: () => setMarked(false)
         }
     }, [props.fwd]);
 
-
     useEffect(() => {
         if (marked)
-
             setButtonClassNameAdditum("!bg-green-500");
         else
             setButtonClassNameAdditum("");
@@ -35,6 +36,7 @@ export default function CopyableTextfield(props: CopyableTextfieldProps) {
 
     function buttonClicked() {
         copyToClipboard();
+        discreteAlert.current?.show(3000, 'GREEN');
         if (!marked)
             setMarked(true);
     }
@@ -62,6 +64,11 @@ export default function CopyableTextfield(props: CopyableTextfieldProps) {
             >
                 {marked ? "✓" : <Image src={copyIcon} width={128} height={128} alt="" />}
             </Button>
+
+            <DiscreteAlert fwd={discreteAlert}>
+                The link was copied to your clipboard.
+            </DiscreteAlert>
+
         </div>
 
     );

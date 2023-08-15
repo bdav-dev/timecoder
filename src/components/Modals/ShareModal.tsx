@@ -20,8 +20,8 @@ export default function ShareModal(props: ShareModalProps) {
     const shareBoxClassNames = "ml-4 mr-4";
 
     useEffect(() => {
-        const hostname = window.location.hostname;
-        setUrl(`${hostname}/?d=${props.code}`);
+        const origin = window.location.origin;
+        setUrl(`${origin}/?d=${props.code}`);
     }, [props.code]);
 
     useEffect(() => {
