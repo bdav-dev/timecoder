@@ -131,6 +131,7 @@ export default function InOutSequence(props: InOutSequenceProps) {
                         width={128}
                         height={128}
                         alt=""
+                        draggable="false"
                     />
                 </button>
             </div>

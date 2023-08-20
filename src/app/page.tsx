@@ -14,7 +14,6 @@ import SmallLabel from "@/components/Primitives/SmallLabel";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ModalFwd } from "@/components/Modals/Modal";
 import ShareModal from "@/components/Modals/ShareModal";
-import ErrorModal, { ErrorModalFwd } from "@/components/Modals/ErrorModal";
 import DiscreteAlert, { DiscreteAlertFwd } from "@/components/Primitives/DiscreteAlert";
 
 export type IndexedInOutSequence = {
@@ -35,7 +34,6 @@ export default function Timecoder() {
   const fpsSelectorFwd = useRef<FpsSelectorFwd>(null);
   const projectNameRef = useRef<HTMLInputElement>(null);
   const shareModal = useRef<ModalFwd>(null);
-  const errorModal = useRef<ErrorModalFwd>(null);
   const discreteAlert = useRef<DiscreteAlertFwd>(null);
 
   const router = useRouter();
@@ -45,7 +43,7 @@ export default function Timecoder() {
   }, []);
 
   useEffect(() => {
-    calculateSum(); 
+    calculateSum();
   }, [inOutSequences]);
 
   useEffect(() => {
@@ -205,10 +203,11 @@ export default function Timecoder() {
   }
 
   return (
-    <div>
+    <>
       {/* Header */}
       <div id="header" className="flex justify-between flex-row items-center">
         <TimecoderLabel />
+
         <input
           onInput={(e: ChangeEvent<HTMLInputElement>) => setProjectName(() => e.target.value)}
           placeholder="Project name"
@@ -216,6 +215,7 @@ export default function Timecoder() {
           type="text"
           ref={projectNameRef}>
         </input>
+
         <FpsSelector
           onChange={(newFramerate) => setFramerate(() => newFramerate)}
           initialValue={framerate}
@@ -259,8 +259,8 @@ export default function Timecoder() {
       {/*<ErrorModal fwd={errorModal}/>*/}
 
       <DiscreteAlert fwd={discreteAlert}>
-        Error: Unable to parse data, code provided in the URL is corrupted.
+        Error: Unable to parse data. Code provided in URL is corrupted.
       </DiscreteAlert>
-    </div>
+    </>
   );
 }

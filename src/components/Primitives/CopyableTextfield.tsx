@@ -62,7 +62,7 @@ export default function CopyableTextfield(props: CopyableTextfieldProps) {
                 onClick={buttonClicked}
                 className={"text-2xl pl-1.5 pr-1.5 ml-2 w-11 " + buttonClassNameAdditum}
             >
-                {marked ? "✓" : <Image src={copyIcon} width={128} height={128} alt="" />}
+                {marked ? "✓" : <Image src={copyIcon} width={128} height={128} alt="" draggable="false" />}
             </Button>
 
             <DiscreteAlert fwd={discreteAlert}>
