@@ -120,11 +120,13 @@ export default function Timecoder() {
 
   function updateInOutSequence(id: number, data: InOutSequenceType) {
     setInOutSequences((prev) => {
-      let copy = prev.splice(0);
+      let copy = [...prev];
 
-      for (let sequence of copy)
-        if (sequence.id === id)
+      for (let sequence of copy) {
+        if (sequence.id === id) {
           sequence.inOutSequence = data;
+        }
+      }
 
       return copy;
     });
@@ -149,7 +151,7 @@ export default function Timecoder() {
 
   function moveSequence(id: number, op: MoveOperation) {
     setInOutSequences((prev) => {
-      let copy = prev.slice(0);
+      let copy = [...prev];
       let firstIndex = 0;
       let secondIndex = 0;
 
