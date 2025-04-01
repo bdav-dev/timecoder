@@ -14,7 +14,7 @@ This application uses Next.js with React and TypeScript.
 
 ## Use Timecoder
 ### Website
-You can use Timecoder in the web with this website: [https://timecoder.vercel.app/]
+You can use Timecoder in the web with this website: [https://timecoder.bdav.dev/]
 
 ### From source code
 You can download the source code of the application and run the app locally. To achieve this, follow these steps:
