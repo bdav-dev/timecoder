@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "./Button";
-import copyIcon from '@/../public/icons/copy_icon.webp'
-import Image from "next/image";
 import DiscreteAlert, { DiscreteAlertFwd } from "./DiscreteAlert";
+import CopyToClipboardIcon from "@/icons/CopyToClipboardIcon";
 
 type CopyableTextfieldProps = {
     text: string,
@@ -62,7 +61,7 @@ export default function CopyableTextfield(props: CopyableTextfieldProps) {
                 onClick={buttonClicked}
                 className={"text-2xl pl-1.5 pr-1.5 ml-2 w-11 " + buttonClassNameAdditum}
             >
-                {marked ? "✓" : <Image src={copyIcon} width={128} height={128} alt="" draggable="false" />}
+                {marked ? "✓" : <CopyToClipboardIcon className="stroke-[7] stroke-white"/>}
             </Button>
 
             <DiscreteAlert fwd={discreteAlert}>
