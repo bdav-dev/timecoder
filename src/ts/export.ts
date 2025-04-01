@@ -61,21 +61,18 @@ export async function encode(data: TimecoderData): Promise<string> {
         s: compactInOutSequences
     };
 
-    const compressed = await compress(JSON.stringify(encodeData));
-
-    return compressed;
+    return await compress(JSON.stringify(encodeData));
 }
 
 export async function decode(encodedMessage: string): Promise<TimecoderData> {
-        const decodedURIComponent = encodedMessage;
-        const decompressed = await decompress(decodedURIComponent);
-        const json = JSON.parse(decompressed);
+    const decompressed = await decompress(encodedMessage);
+    const json = JSON.parse(decompressed);
 
-        return {
-            title: json.t,
-            framerate: json.f,
-            indexedInOutSequences: json.s.map((e: CompactInOutSequence, index: number) => toIndexedInOutSequence(index, e, json.f))
-        };
+    return {
+        title: json.t,
+        framerate: json.f,
+        indexedInOutSequences: json.s.map((e: CompactInOutSequence, index: number) => toIndexedInOutSequence(index, e, json.f))
+    };
 }
 
 function toIndexedInOutSequence(id: number, compactInOutSequence: CompactInOutSequence, framerate: Framerate): IndexedInOutSequence {

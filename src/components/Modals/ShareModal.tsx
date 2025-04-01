@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import Modal, { ModalFwd } from "./Modal";
+import Modal from "./Modal";
 import Button from "../Primitives/Button";
 import CopyableTextfield, { CopyableTextfieldFwd } from "../Primitives/CopyableTextfield";
 
 type ShareModalProps = {
-    fwd: any,
     onDownloadClick: () => void,
-    code?: string
+    code?: string,
+    isOpen: boolean,
+    onRequestClose: () => void
 }
 
 export default function ShareModal(props: ShareModalProps) {
-    const modal = useRef<ModalFwd>(null);
     const copyableTextfieldLink = useRef<CopyableTextfieldFwd>(null);
     const copyableTextfieldCode = useRef<CopyableTextfieldFwd>(null);
 
@@ -24,23 +24,14 @@ export default function ShareModal(props: ShareModalProps) {
         setUrl(`${origin}/?d=${props.code}`);
     }, [props.code]);
 
-    useEffect(() => {
-        props.fwd.current = {
-            showModal: () => modal.current?.showModal(),
-            close: () => {
-                modal.current?.close();
-                close();
-            }
-        }
-    }, [props.fwd]);
-
     function close() {
         copyableTextfieldLink.current?.reset();
         copyableTextfieldCode.current?.reset();
+        props.onRequestClose();
     }
 
     return (
-        <Modal onClose={close} fwd={modal} className="h-1/3 w-1/2">
+        <Modal isOpen={props.isOpen} onRequestClose={close} className="h-1/3 w-1/2">
             <div className="h-full flex flex-col">
                 {/* Title */}
                 <div className="text-center text-2xl mt-5 font-bold h-auto">
